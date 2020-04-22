@@ -1,6 +1,5 @@
 from Model_Train import Train
 from Model_Manage import Manage
-from Need.Model_Loader import Loader
 from Need.Model_Predict import Predict
 import torch,shutil
 
@@ -12,14 +11,16 @@ class Frame:
     #
     #
     #
-
+        - 框架描述
+            - 该框架启动后将把 Model_From.py 和 Model_Loader.py 复制到模型目录中并调用
+            - 需要确保 Model_From.py 和 Model_Loader.py 的正确性
 
 
         - 使用时需要修改的文件:
             - MAIN.py               # 主文件
             - Need/Model_From.py    # 模型文件
             - Need/Model_Loader.py  # 训练集加载器
-            - Need/Model_Predict.py # 模型预测
+            - Need/Model_Predict.py # 模型预测(未完成)
 
 
         -  注意:
@@ -71,10 +72,14 @@ class Frame:
                  '\n\n'
         print(sr_tip)
 
-        self.sr_model_dc_temp_path = './Model/Model.pt'   # 临时模型文件 路径
-        self.sr_model_py_temp_path = './Model/Model.py'
+        self.sr_model_manage_dir = './Model'
+
+        self.sr_model_dc_temp_path = '{}/Model.pt'.format(self.sr_model_manage_dir)  # 模型参数临时保存路径,需要与Frame保持一致
+        self.sr_model_py_temp_path = '{}/Model.py'.format(self.sr_model_manage_dir)  # 模型脚本临时保存路径,需要与Frame保持一致
+        self.sr_loader_py_temp_path = '{}/Loader.py'.format(self.sr_model_manage_dir)  # 加载器脚本临时保存路径,需要与Frame保持一致
 
         self.sr_model_py_build_path = './Need/Model_From.py'   # 新模型文件 路径
+        self.sr_loader_py_build_path = './Need/Model_Loader.py'
 
         self.model = None           # 模型实例，由 build,load 加载
         self.model_key_name = None  # 模型键值命名
@@ -99,14 +104,16 @@ class Frame:
             try:
                 # 将模型脚本临时保存
                 self.save_temp_model_py()
+                # 将加载器脚本临时保存
+                self.save_temp_loader_py()
                 # 添加模型
                 self.ins_Manage.add_model_item(sr_model_key_name=sr_model_key_name)
-                # 导入模型,从新添加的模型导入
-                self.model = self.ins_Manage.check_model_item(sr_model_key_name,0)['model']
+                # 导入模型和加载器,从新添加的模型导入
+                dc = self.ins_Manage.check_model_item(sr_model_key_name,0)
+                self.model = dc['model']
+                self.loader = dc['loader']
                 # 模型键值名
                 self.model_key_name =sr_model_key_name
-                # 训练集加载器
-                self.get_loader()
             except:
                 self.delete_model(sr_model_key_name)
                 raise Exception('新建模型失败.')
@@ -119,18 +126,18 @@ class Frame:
             print('>>> 导入模型 {}.'.format(sr_model_key_name))
             # 初始化变量
             self.init()
-            # 导入训练集
-            self.get_loader()
-            # 导入模型
-            self.model = self.ins_Manage.check_model_item(sr_model_key_name,mode=0)['model']
+            # 导入模型和加载器
+            dc = self.ins_Manage.check_model_item(sr_model_key_name,mode=0)
+            self.model = dc['model']
+            self.loader = dc['loader']
             # 模型键值名
             self.model_key_name = sr_model_key_name
         else:
             raise Exception('该模型不存在.')
 
-    # 获取数据集加载器
-    def get_loader(self):
-        self.loader = Loader().get_loader()
+    def update_loader_py(self,sr_model_key_name):
+        self.save_temp_loader_py()
+        self.ins_Manage.update_loader_py(sr_model_key_name)
 
     # 模型预测
     def predict(self,dc_input):
@@ -153,11 +160,15 @@ class Frame:
         dc_info = dc['info']
         return dc_info
 
-    # 保存临时模型文件
+    # 临时保存模型文件
     def save_temp_model_dc(self):
         torch.save(self.model.state_dict(), self.sr_model_dc_temp_path)     # 保存到模型临时存储
+    # 临时保存模型脚本
     def save_temp_model_py(self):
         shutil.copy(self.sr_model_py_build_path,self.sr_model_py_temp_path)
+    # 临时保存加载器脚本
+    def save_temp_loader_py(self):
+        shutil.copy(self.sr_loader_py_build_path, self.sr_loader_py_temp_path)
 
     # 训练
     def train(self):
