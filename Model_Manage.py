@@ -167,7 +167,7 @@ class Manage:
             return False
 
     # 查看模型
-    def check_model_item(self,sr_model_key_name,mode=2):
+    def check_model_item(self,sr_model_key_name,mode):
         sr_model_dir = '{}/{}'.format(self.sr_model_manage_dir, sr_model_key_name)      # 模型文件信息目录
         sr_model_json_path = '{}/{}'.format(sr_model_dir,self.sr_info_name)             # 模型信息路径
 
@@ -178,20 +178,22 @@ class Manage:
             'info': None
         }
         if mode == 0:
-            # 只导入模型和加载器
+            # 导入模型和预测类
             model = self.load_model(sr_model_key_name)
-            loader = self.get_loader_instance(sr_model_key_name)
             predict = self.get_predict_instance(sr_model_key_name)
             dc['model'] = model
-            dc['loader'] = loader
             dc['predict'] = predict
         elif mode == 1:
-            # 只导入模型信息
+            # 导入加载器
+            loader = self.get_loader_instance(sr_model_key_name)
+            dc['loader'] = loader
+        elif mode == 2:
+            # 导入模型信息
             with open(sr_model_json_path) as file_handle:
                 dc_info_json = json.load(file_handle)
             dc['info'] = dc_info_json
-        elif mode == 2:
-            # 导入模型和模型信息
+        elif mode == 3:
+            # 导入所有
             model = self.load_model(sr_model_key_name)
             loader = self.get_loader_instance(sr_model_key_name)
             predict = self.get_predict_instance(sr_model_key_name)

@@ -115,7 +115,6 @@ class Frame:
                 # 导入模型,加载器,预测实例,从新添加的模型导入
                 dc = self.ins_Manage.check_model_item(sr_model_key_name,0)
                 self.ins_model = dc['model']
-                self.ins_loader = dc['loader']
                 self.ins_predict = dc['predict']
                 # 模型键值名
                 self.model_key_name =sr_model_key_name
@@ -134,7 +133,6 @@ class Frame:
             # 导入模型,加载器,预测实例
             dc = self.ins_Manage.check_model_item(sr_model_key_name,mode=0)
             self.ins_model = dc['model']
-            self.ins_loader = dc['loader']
             self.ins_predict = dc['predict']
             # 模型键值名
             self.model_key_name = sr_model_key_name
@@ -184,9 +182,13 @@ class Frame:
     def save_temp_predict_py(self,sr_model_key_name):
         shutil.copy(self.sr_predict_py_build_path.format(sr_model_key_name), self.sr_predict_py_temp_path)
 
+    def get_loader(self):
+        dc = self.ins_Manage.check_model_item(self.model_key_name,1)
+        return dc['loader']
     # 训练
     def train(self):
         model = self.ins_model
+        self.ins_loader = self.get_loader()
         loader = self.ins_loader
         dc_train_params = self.dc_train_params
         print('>>> 开始训练.')
