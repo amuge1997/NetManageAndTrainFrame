@@ -11,15 +11,15 @@ class Frame:
     #
     #
         - 框架描述
-            - 该框架启动后将把 Model_From.py 和 Model_Loader.py 复制到模型目录中并调用
-            - 需要确保 Model_From.py 和 Model_Loader.py 的正确性
-
+            - 该框架启动后将把 *_Model.py , *_Loader.py , *_Predict.py 复制到模型目录中并调用
+            - 需要确保 *_Model.py , *_Loader.py , *_Predict.py 的正确性
+            - 星号 '*' 表示-> 模型名称
 
         - 使用时需要修改的文件:
             - MAIN.py               # 主文件
-            - Need/Model_From.py    # 模型文件
-            - Need/Model_Loader.py  # 训练集加载器
-            - Need/Model_Predict.py # 模型预测(未完成)
+            - Need/*_From.py        # 模型文件
+            - Need/*_Loader.py      # 训练集加载器
+            - Need/*_Predict.py     # 模型预测
 
 
         -  注意:
@@ -27,14 +27,13 @@ class Frame:
                 - Project
                     - Model                 # (不得修改目录名) 数据库目录
                     - Need                  # (不得修改目录名) 支持目录
-                        - Model_From.py     # (不得修改文件名) 用于生成模型,必须包含模型实现类,模型的键值名称即类名
-                        - Model_Loader.py   # (不得修改文件名) 用于返回 loader 训练集,必须包含 get_loader() 方法
-                        - Model_Predict.py  # (不得修改文件名) 用于返回 预测类,必须包含 predict() 方法
+                        - *_Model.py        # (不得修改文件名) 用于生成模型,必须包含模型实现类,模型的键值名称即类名
+                        - *_Loader.py       # (不得修改文件名) 用于返回 loader 训练集,必须包含 Loader类 get_loader() 方法
+                        - *_Predict.py      # (不得修改文件名) 用于返回 预测类,必须包含 Predict类 predict() 方法
                     - MAIN.py               # (可以修改文件名) 用户逻辑程序
                     - Model_Frame.py        # (不得修改文件名) 框架脚本
                     - Model_Manage.py       # (不得修改文件名) 数据库脚本
                     - Model_Train.py        # (不得修改文件名) 训练脚本
-
 
 
         - 使用示例:
@@ -65,9 +64,9 @@ class Frame:
     def __init__(self):
         sr_tip = '\n\n' \
                  'Need目录在必须存在以下文件\n' \
-                 '  - Model_From.py     用于生成模型,必须包含模型实现类,模型的键值名称即类名\n' \
-                 '  - Model_Loader.py   用于返回 loader 训练集,必须包含 get_loader() 方法\n' \
-                 '  - Model_Predict.py  用于返回 预测类,必须包含 predict() 方法' \
+                 '  - *_Model.py    用于生成模型,必须包含模型实现类,模型的键值名称即类名\n' \
+                 '  - *_Loader.py   用于返回 loader 训练集,必须包含 get_loader() 方法\n' \
+                 '  - *_Predict.py  用于返回 预测类,必须包含 predict() 方法' \
                  '\n\n'
         print(sr_tip)
 
@@ -78,9 +77,9 @@ class Frame:
         self.sr_loader_py_temp_path = '{}/Loader.py'.format(self.sr_model_manage_dir)  # 加载器脚本临时保存路径
         self.sr_predict_py_temp_path = '{}/Predict.py'.format(self.sr_model_manage_dir)  # 加载器脚本临时保存路径
 
-        self.sr_model_py_build_path = './Need/Model_From.py'   # 新模型文件 路径
-        self.sr_loader_py_build_path = './Need/Model_Loader.py'
-        self.sr_predict_py_build_path = './Need/Model_Predict.py'
+        self.sr_model_py_build_path = './Need/{}_Model.py'   # 新模型文件 路径
+        self.sr_loader_py_build_path = './Need/{}_Loader.py'
+        self.sr_predict_py_build_path = './Need/{}_Predict.py'
 
         self.model_key_name = None      # 模型键值命名
 
@@ -106,11 +105,11 @@ class Frame:
             self.init()
             try:
                 # 将模型脚本临时保存
-                self.save_temp_model_py()
+                self.save_temp_model_py(sr_model_key_name)
                 # 将加载器脚本临时保存
-                self.save_temp_loader_py()
+                self.save_temp_loader_py(sr_model_key_name)
                 # 将预测脚本临时保存
-                self.save_temp_predict_py()
+                self.save_temp_predict_py(sr_model_key_name)
                 # 添加模型
                 self.ins_Manage.add_model_item(sr_model_key_name=sr_model_key_name)
                 # 导入模型,加载器,预测实例,从新添加的模型导入
@@ -142,15 +141,7 @@ class Frame:
         else:
             raise Exception('该模型不存在.')
 
-    # 更新加载器py脚本
-    def update_loader_py(self,sr_model_key_name):
-        self.save_temp_loader_py()
-        self.ins_Manage.update_loader_py(sr_model_key_name)
 
-    # 更新预测类py脚本
-    def update_predict_py(self,sr_model_key_name):
-        self.save_temp_predict_py()
-        self.ins_Manage.update_predict_py(sr_model_key_name)
 
     # 模型预测
     def predict(self,dc_input):
@@ -177,13 +168,13 @@ class Frame:
     def save_temp_model_dc(self):
         torch.save(self.ins_model.state_dict(), self.sr_model_dc_temp_path)     # 保存到模型临时存储
     # 临时保存模型脚本
-    def save_temp_model_py(self):
-        shutil.copy(self.sr_model_py_build_path, self.sr_model_py_temp_path)
+    def save_temp_model_py(self,sr_model_key_name):
+        shutil.copy(self.sr_model_py_build_path.format(sr_model_key_name), self.sr_model_py_temp_path)
     # 临时保存加载器脚本
-    def save_temp_loader_py(self):
-        shutil.copy(self.sr_loader_py_build_path, self.sr_loader_py_temp_path)
-    def save_temp_predict_py(self):
-        shutil.copy(self.sr_predict_py_build_path, self.sr_predict_py_temp_path)
+    def save_temp_loader_py(self,sr_model_key_name):
+        shutil.copy(self.sr_loader_py_build_path.format(sr_model_key_name), self.sr_loader_py_temp_path)
+    def save_temp_predict_py(self,sr_model_key_name):
+        shutil.copy(self.sr_predict_py_build_path.format(sr_model_key_name), self.sr_predict_py_temp_path)
 
     # 训练
     def train(self):
@@ -196,6 +187,20 @@ class Frame:
         self.ins_model = dc_model['model']      # 模型更新
         self.save_temp_model_dc()           # 保存
         self.ins_Manage.update_model_item(self.model_key_name,dc_model) # 数据库更新
+
+
+
+
+
+    # 更新加载器py脚本
+    def update_loader_py(self, sr_model_key_name):
+        self.save_temp_loader_py(sr_model_key_name)
+        self.ins_Manage.update_loader_py(sr_model_key_name)
+
+    # 更新预测类py脚本
+    def update_predict_py(self, sr_model_key_name):
+        self.save_temp_predict_py(sr_model_key_name)
+        self.ins_Manage.update_predict_py(sr_model_key_name)
 
     # 删除模型
     def delete_model(self,sr_model_key_name):

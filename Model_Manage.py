@@ -34,26 +34,26 @@ class Manage:
     # 更新模型py文件
     def update_model_py(self,sr_model_key_name):
         sr_model_dir = '{}/{}'.format(self.sr_model_manage_dir, sr_model_key_name)  # 模型文件信息目录
-        sr_model_py_save_path = '{}/Model.py'.format(sr_model_dir)  # 模型py文件路径
+        sr_model_py_save_path = '{}/{}_Model.py'.format(sr_model_dir,sr_model_key_name)  # 模型py文件路径
         shutil.copy(self.sr_model_py_temp_path, sr_model_py_save_path)  # 复制 模型py文件
 
     # 更新加载器py文件
     def update_loader_py(self,sr_model_key_name):
         sr_model_dir = '{}/{}'.format(self.sr_model_manage_dir, sr_model_key_name)  # 模型文件信息目录
-        sr_loader_py_save_path = '{}/Loader.py'.format(sr_model_dir)  # 加载器py文件路径
+        sr_loader_py_save_path = '{}/{}_Loader.py'.format(sr_model_dir,sr_model_key_name)  # 加载器py文件路径
         shutil.copy(self.sr_loader_py_temp_path, sr_loader_py_save_path)  # 复制 加载器py文件
 
     # 更新预测类py文件
     def update_predict_py(self, sr_model_key_name):
         sr_model_dir = '{}/{}'.format(self.sr_model_manage_dir, sr_model_key_name)  # 模型文件信息目录
-        sr_prdict_py_save_path = '{}/Predict.py'.format(sr_model_dir)  # 加载器py文件路径
+        sr_prdict_py_save_path = '{}/{}_Predict.py'.format(sr_model_dir,sr_model_key_name)  # 加载器py文件路径
         shutil.copy(self.sr_predict_py_temp_path, sr_prdict_py_save_path)  # 复制 加载器py文件
 
     # 获取预测类实例
     def get_predict_instance(self,sr_model_key_name):
         # 从py文件中实例化预测实例
         sr_model_dir = '{}/{}'.format(self.sr_model_manage_dir, sr_model_key_name)
-        sr_predict_py_save_path = '{}/Predict.py'.format(sr_model_dir)  # 预测类py文件路径
+        sr_predict_py_save_path = '{}/{}_Predict.py'.format(sr_model_dir,sr_model_key_name)  # 预测类py文件路径
         sr_exec = sr_predict_py_save_path.replace('.py', '').replace('.', '').replace('/', '.')[1:]
         sr_exec = 'from {} import Predict'.format(sr_exec)
         exec(sr_exec)
@@ -64,7 +64,7 @@ class Manage:
     def get_loader_instance(self,sr_model_key_name):
         # 从py文件中实例化加载器
         sr_model_dir = '{}/{}'.format(self.sr_model_manage_dir, sr_model_key_name)
-        sr_loader_py_save_path = '{}/Loader.py'.format(sr_model_dir)  # 加载器py文件路径
+        sr_loader_py_save_path = '{}/{}_Loader.py'.format(sr_model_dir,sr_model_key_name)  # 加载器py文件路径
         sr_exec = sr_loader_py_save_path.replace('.py', '').replace('.', '').replace('/', '.')[1:]
         sr_exec = 'from {} import Loader'.format(sr_exec)
         exec(sr_exec)
@@ -75,17 +75,17 @@ class Manage:
     def get_model_instance(self,sr_model_key_name):
         # 从py文件中实例化模型
         sr_model_dir = '{}/{}'.format(self.sr_model_manage_dir, sr_model_key_name)  # 模型文件信息目录
-        sr_model_py_save_path = '{}/Model.py'.format(sr_model_dir)  # 模型py文件路径
+        sr_model_py_save_path = '{}/{}_Model.py'.format(sr_model_dir,sr_model_key_name)  # 模型py文件路径
         sr_exec = sr_model_py_save_path.replace('.py', '').replace('.', '').replace('/', '.')[1:]
-        sr_exec = 'from {} import {}'.format(sr_exec, sr_model_key_name)
+        sr_exec = 'from {} import Model'.format(sr_exec)
         exec(sr_exec)  # 动态导入模型类,如 from Model.CNN.Model import CNN
-        model = eval('{}()'.format(sr_model_key_name))  # 模型实例化, model = CNN()
+        model = eval('Model()'.format(sr_model_key_name))  # 模型实例化, model = CNN()
         return model
 
     # 根据模型键值名加载模型
     def load_model(self, sr_model_key_name):
         sr_model_dir = '{}/{}'.format(self.sr_model_manage_dir, sr_model_key_name)  # 模型文件信息目录
-        sr_model_dc_save_path = '{}/Model.pt'.format(sr_model_dir, sr_model_key_name)  # 模型dc文件路径
+        sr_model_dc_save_path = '{}/{}_Model.pt'.format(sr_model_dir, sr_model_key_name)  # 模型dc文件路径
         model = self.get_model_instance(sr_model_key_name)
         model.load_state_dict(torch.load(sr_model_dc_save_path))
         return model
@@ -111,7 +111,7 @@ class Manage:
 
             # 模型dc参数文件
             model = self.get_model_instance(sr_model_key_name)
-            sr_model_dc_save_path = '{}/Model.pt'.format(sr_model_dir)  # 模型dc文件路径
+            sr_model_dc_save_path = '{}/{}_Model.pt'.format(sr_model_dir,sr_model_key_name)  # 模型dc文件路径
             torch.save(model.state_dict(),sr_model_dc_save_path)    # 保存模型参数
 
             sr_model_info_path = '{}/{}'.format(sr_model_dir, self.sr_info_name)  # 模型信息路径
@@ -130,7 +130,7 @@ class Manage:
             raise Exception('模型 {} 不存在'.format(sr_model_key_name))
         else:
             sr_model_dir = '{}/{}'.format(self.sr_model_manage_dir, sr_model_key_name)  # 模型文件信息目录
-            sr_model_dc_save_path = '{}/Model.pt'.format(sr_model_dir)                  # 模型文件路径
+            sr_model_dc_save_path = '{}/{}_Model.pt'.format(sr_model_dir,sr_model_key_name)                  # 模型文件路径
             sr_model_info_path = '{}/info.json'.format(sr_model_dir)                    # 模型信息路径
 
             # 更新 模型dc参数文件
