@@ -166,7 +166,7 @@ class Frame:
 
     # 获取模型的所有信息
     def get_model_all_info(self):
-        dc = self.ins_Manage.check_model_item(self.model_key_name,mode=1)       # 调用管理实例获取模型信息
+        dc = self.ins_Manage.check_model_item(self.model_key_name,mode=2)       # 调用管理实例获取模型信息
         dc_info = dc['info']
         return dc_info
 
