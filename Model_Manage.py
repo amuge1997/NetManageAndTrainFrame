@@ -203,10 +203,13 @@ class Manage:
             dc['info'] = dc_info_json
         return dc
 
-
-
-
-
+    # 设置模型提示
+    def set_model_tips(self,sr_model_key_name,sr_tips):
+        self.dc_manage[sr_model_key_name]['tips'] = sr_tips
+        self.update_dc_manage()
+    # 获取模型提示
+    def get_model_tips(self,sr_model_key_name):
+        return self.dc_manage[sr_model_key_name]['tips']
 
 
 

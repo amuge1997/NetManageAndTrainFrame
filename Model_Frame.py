@@ -158,6 +158,14 @@ class Frame:
             'momentum':momentum,
         }
 
+    # 设置模型提示
+    def set_model_tips(self,sr_tips):
+        self.ins_Manage.set_model_tips(self.model_key_name,sr_tips)
+
+    # 获取模型提示
+    def get_model_tips(self):
+        return self.ins_Manage.get_model_tips(self.model_key_name)
+
     # 获取模型的所有信息
     def get_model_all_info(self):
         dc = self.ins_Manage.check_model_item(self.model_key_name,mode=1)       # 调用管理实例获取模型信息
@@ -204,7 +212,8 @@ class Frame:
 
     # 删除模型
     def delete_model(self,sr_model_key_name):
-        self.init()
+        if sr_model_key_name == self.model_key_name:
+            self.init()
         is_succ = self.ins_Manage.delete_model_item(sr_model_key_name)        # 调用管理实例删除当前模型( 删除模型前必须加载模型 )
         if is_succ:
             print('>>> 删除 {} 成功.'.format(sr_model_key_name))
