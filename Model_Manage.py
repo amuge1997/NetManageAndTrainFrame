@@ -129,9 +129,9 @@ class Manage:
         if sr_model_key_name not in self.dc_manage:
             raise Exception('模型 {} 不存在'.format(sr_model_key_name))
         else:
-            sr_model_dir = '{}/{}'.format(self.sr_model_manage_dir, sr_model_key_name)  # 模型文件信息目录
-            sr_model_dc_save_path = '{}/{}_Model.pt'.format(sr_model_dir,sr_model_key_name)                  # 模型文件路径
-            sr_model_info_path = '{}/info.json'.format(sr_model_dir)                    # 模型信息路径
+            sr_model_dir = '{}/{}'.format(self.sr_model_manage_dir, sr_model_key_name)          # 模型文件信息目录
+            sr_model_dc_save_path = '{}/{}_Model.pt'.format(sr_model_dir,sr_model_key_name)     # 模型文件路径
+            sr_model_info_path = '{}/{}'.format(sr_model_dir,self.sr_info_name)                 # 模型信息路径
 
             # 更新 模型dc参数文件
             shutil.copy(self.sr_model_dc_temp_path, sr_model_dc_save_path)
