@@ -1,4 +1,4 @@
-from Model_Frame import Frame
+from Frame.Model_Frame import Frame
 
 
 

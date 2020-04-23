@@ -1,5 +1,5 @@
-from Model_Train import Train
-from Model_Manage import Manage
+from .Model_Train import Train
+from .Model_Manage import Manage
 import torch,shutil
 
 
@@ -70,7 +70,7 @@ class Frame:
                  '\n\n'
         print(sr_tip)
 
-        self.sr_model_manage_dir = './Model'
+        self.sr_model_manage_dir = './Frame/Model'
 
         self.sr_model_dc_temp_path = '{}/Model.pt'.format(self.sr_model_manage_dir)  # 模型参数临时保存路径
         self.sr_model_py_temp_path = '{}/Model.py'.format(self.sr_model_manage_dir)  # 模型脚本临时保存路径

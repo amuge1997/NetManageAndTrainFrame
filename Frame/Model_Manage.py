@@ -2,7 +2,7 @@ import json,os,shutil,torch
 
 class Manage:
     def __init__(self):
-        self.sr_model_manage_dir = './Model'            # 数据库根路径
+        self.sr_model_manage_dir = './Frame/Model'            # 数据库根路径
         self.sr_info_name = 'Info.json'
 
         self.sr_model_dc_temp_path = '{}/Model.pt'.format(self.sr_model_manage_dir)   # 模型参数临时保存路径,需要与Frame保持一致
