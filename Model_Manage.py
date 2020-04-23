@@ -8,6 +8,7 @@ class Manage:
         self.sr_model_dc_temp_path = '{}/Model.pt'.format(self.sr_model_manage_dir)   # 模型参数临时保存路径,需要与Frame保持一致
         self.sr_model_py_temp_path = '{}/Model.py'.format(self.sr_model_manage_dir)   # 模型脚本临时保存路径,需要与Frame保持一致
         self.sr_loader_py_temp_path = '{}/Loader.py'.format(self.sr_model_manage_dir)  # 加载器脚本临时保存路径,需要与Frame保持一致
+        self.sr_predict_py_temp_path = '{}/Predict.py'.format(self.sr_model_manage_dir)  # 加载器脚本临时保存路径,需要与Frame保持一致
 
         self.sr_data_path = '{}/Manage.json'.format(self.sr_model_manage_dir)       # 主文件路径
         self.dc_manage = None                           # 数据库主文件
@@ -26,15 +27,38 @@ class Manage:
             return True
 
     # 更新主文件
-    def updata_dc_manage(self):
+    def update_dc_manage(self):
         with open(self.sr_data_path,'w') as file_handel:
             json.dump(self.dc_manage,file_handel)
 
-    # 修改加载器py文件
+    # 更新模型py文件
+    def update_model_py(self,sr_model_key_name):
+        sr_model_dir = '{}/{}'.format(self.sr_model_manage_dir, sr_model_key_name)  # 模型文件信息目录
+        sr_model_py_save_path = '{}/Model.py'.format(sr_model_dir)  # 模型py文件路径
+        shutil.copy(self.sr_model_py_temp_path, sr_model_py_save_path)  # 复制 模型py文件
+
+    # 更新加载器py文件
     def update_loader_py(self,sr_model_key_name):
         sr_model_dir = '{}/{}'.format(self.sr_model_manage_dir, sr_model_key_name)  # 模型文件信息目录
         sr_loader_py_save_path = '{}/Loader.py'.format(sr_model_dir)  # 加载器py文件路径
         shutil.copy(self.sr_loader_py_temp_path, sr_loader_py_save_path)  # 复制 加载器py文件
+
+    # 更新预测类py文件
+    def update_predict_py(self, sr_model_key_name):
+        sr_model_dir = '{}/{}'.format(self.sr_model_manage_dir, sr_model_key_name)  # 模型文件信息目录
+        sr_prdict_py_save_path = '{}/Predict.py'.format(sr_model_dir)  # 加载器py文件路径
+        shutil.copy(self.sr_predict_py_temp_path, sr_prdict_py_save_path)  # 复制 加载器py文件
+
+    # 获取预测类实例
+    def get_predict_instance(self,sr_model_key_name):
+        # 从py文件中实例化预测实例
+        sr_model_dir = '{}/{}'.format(self.sr_model_manage_dir, sr_model_key_name)
+        sr_predict_py_save_path = '{}/Predict.py'.format(sr_model_dir)  # 预测类py文件路径
+        sr_exec = sr_predict_py_save_path.replace('.py', '').replace('.', '').replace('/', '.')[1:]
+        sr_exec = 'from {} import Predict'.format(sr_exec)
+        exec(sr_exec)
+        predict = eval('Predict()')
+        return predict
 
     # 获取加载器实例
     def get_loader_instance(self,sr_model_key_name):
@@ -43,7 +67,7 @@ class Manage:
         sr_loader_py_save_path = '{}/Loader.py'.format(sr_model_dir)  # 加载器py文件路径
         sr_exec = sr_loader_py_save_path.replace('.py', '').replace('.', '').replace('/', '.')[1:]
         sr_exec = 'from {} import Loader'.format(sr_exec)
-        exec(sr_exec)  # 动态导入模型类,如 from Model.CNN.Model import CNN
+        exec(sr_exec)
         loader = eval('Loader().get_loader()')
         return loader
 
@@ -70,19 +94,20 @@ class Manage:
     def add_model_item(self,sr_model_key_name):
         if sr_model_key_name not in self.dc_manage:
             self.dc_manage[sr_model_key_name] = {}
-            self.updata_dc_manage()                 # 更新 主文件
+            self.update_dc_manage()                 # 更新 主文件
 
             # 创建目录
             sr_model_dir = '{}/{}'.format(self.sr_model_manage_dir, sr_model_key_name)  # 模型文件信息目录
             os.mkdir(sr_model_dir)
 
             # 将模型py脚本复制到目录中
-            sr_model_py_save_path = '{}/Model.py'.format(sr_model_dir)      # 模型py文件路径
-            shutil.copy(self.sr_model_py_temp_path, sr_model_py_save_path)  # 复制 模型py文件
+            self.update_model_py(sr_model_key_name)
 
             # 将加载器py脚本复制到目录中
-            sr_loader_py_save_path = '{}/Loader.py'.format(sr_model_dir)    # 加载器py文件路径
-            shutil.copy(self.sr_loader_py_temp_path, sr_loader_py_save_path)# 复制 加载器py文件
+            self.update_loader_py(sr_model_key_name)
+
+            # 将预测类py脚本复制到目录中
+            self.update_predict_py(sr_model_key_name)
 
             # 模型dc参数文件
             model = self.get_model_instance(sr_model_key_name)
@@ -135,7 +160,7 @@ class Manage:
             sr_model_dir = '{}/{}'.format(self.sr_model_manage_dir, sr_model_key_name)  # 模型文件信息目录
             shutil.rmtree(sr_model_dir)             # 删除 模型目录
             self.dc_manage.pop(sr_model_key_name)   # 删除 在数据库主文件中的模型键值
-            self.updata_dc_manage()                 # 更新 数据库主文件
+            self.update_dc_manage()                 # 更新 数据库主文件
             return True
         else:
             print('>>> 不存在该模型.')
@@ -149,14 +174,17 @@ class Manage:
         dc = {
             'model': None,
             'loader':None,
+            'predict':None,
             'info': None
         }
         if mode == 0:
             # 只导入模型和加载器
             model = self.load_model(sr_model_key_name)
             loader = self.get_loader_instance(sr_model_key_name)
+            predict = self.get_predict_instance(sr_model_key_name)
             dc['model'] = model
             dc['loader'] = loader
+            dc['predict'] = predict
         elif mode == 1:
             # 只导入模型信息
             with open(sr_model_json_path) as file_handle:
@@ -166,10 +194,12 @@ class Manage:
             # 导入模型和模型信息
             model = self.load_model(sr_model_key_name)
             loader = self.get_loader_instance(sr_model_key_name)
+            predict = self.get_predict_instance(sr_model_key_name)
             with open(sr_model_json_path) as file_handle:
                 dc_info_json = json.load(file_handle)
             dc['model'] = model
             dc['loader'] = loader
+            dc['predict'] = predict
             dc['info'] = dc_info_json
         return dc
 
