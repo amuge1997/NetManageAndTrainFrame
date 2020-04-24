@@ -8,13 +8,14 @@ class Train:
     def __init__(self):
         pass
 
-    def train(self, model, loader, dc_train_params):
+    def train(self, model, loader, dc_train_params,):
 
         lr = dc_train_params['lr']
         epochs = dc_train_params['epochs']
         lossf_sel = dc_train_params['lossf']
         opt_sel = dc_train_params['optim']
         momentum = dc_train_params['momentum']
+        is_show_details = dc_train_params['is_show_details']
 
 
         if lossf_sel == 'mse':
@@ -69,7 +70,8 @@ class Train:
                 optimizer.step()
                 train_loss = loss.item()
                 train_lossSum += train_loss
-                print('{}-{}: {}'.format(epoch, step, train_loss))
+                if is_show_details:
+                    print('{}-{}: {}'.format(epoch, step, train_loss))
             train_lossSum = train_lossSum / len(loader)
             print()
             print('{}-mean: {}'.format(epoch, train_lossSum))

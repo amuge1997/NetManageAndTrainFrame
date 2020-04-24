@@ -147,13 +147,14 @@ class Frame:
         return Y
 
     # 设置训练参数
-    def set_train_params(self,lr,epochs,lossf,opt,momentum=0.9):
+    def set_train_params(self,lr,epochs,lossf,opt,momentum=0.9,is_show_detail=True):
         self.dc_train_params = {
             'lr':lr,
             'epochs':epochs,
             'lossf':lossf,
             'optim':opt,
             'momentum':momentum,
+            'is_show_detail':is_show_detail
         }
 
     # 设置模型提示
