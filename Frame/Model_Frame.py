@@ -112,17 +112,17 @@ class Frame:
                 self.save_temp_predict_py(sr_model_key_name)
                 # 添加模型
                 self.ins_Manage.add_model_item(sr_model_key_name=sr_model_key_name)
-                # 导入模型,加载器,预测实例,从新添加的模型导入
-                dc = self.ins_Manage.check_model_item(sr_model_key_name,0)
-                self.ins_model = dc['model']
-                self.ins_predict = dc['predict']
-                # 模型键值名
-                self.model_key_name =sr_model_key_name
+                # # 导入模型,加载器,预测实例,从新添加的模型导入
+                # dc = self.ins_Manage.check_model_item(sr_model_key_name,0)
+                # self.ins_model = dc['model']
+                # self.ins_predict = dc['predict']
+                # # 模型键值名
+                # self.model_key_name =sr_model_key_name
             except:
                 self.delete_model(sr_model_key_name)
                 raise Exception('新建模型失败.')
         else:
-            raise Exception('该模型已存在.')
+            raise Exception('该模型已存在,无法新建.')
 
     # 加载数据库中已存在的模型
     def load_model(self,sr_model_key_name):
@@ -137,7 +137,7 @@ class Frame:
             # 模型键值名
             self.model_key_name = sr_model_key_name
         else:
-            raise Exception('该模型不存在.')
+            raise Exception('该模型不存在,无法导入.')
 
 
 
