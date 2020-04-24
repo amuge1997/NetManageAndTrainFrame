@@ -17,7 +17,9 @@ if __name__ == '__main__':
             lr=1e-3,
             epochs=10,
             lossf='mse',
-            opt='adam'
+            opt='adam',
+            momentum=0.9,
+            is_show_detail=False,
         )
         fr.train()
     '''
