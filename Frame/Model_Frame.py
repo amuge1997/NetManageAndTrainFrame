@@ -77,9 +77,9 @@ class Frame:
         self.sr_loader_py_temp_path = '{}/Loader.py'.format(self.sr_model_manage_dir)  # 加载器脚本临时保存路径
         self.sr_predict_py_temp_path = '{}/Predict.py'.format(self.sr_model_manage_dir)  # 加载器脚本临时保存路径
 
-        self.sr_model_py_build_path = './Need/{}_Model.py'   # 新模型文件 路径
-        self.sr_loader_py_build_path = './Need/{}_Loader.py'
-        self.sr_predict_py_build_path = './Need/{}_Predict.py'
+        self.sr_model_py_build_path = './Need/{}/Model.py'   # 新模型脚本py文件 路径
+        self.sr_loader_py_build_path = './Need/{}/Loader.py'
+        self.sr_predict_py_build_path = './Need/{}/Predict.py'
 
         self.model_key_name = None      # 模型键值命名
 
@@ -171,15 +171,16 @@ class Frame:
         dc_info = dc['info']
         return dc_info
 
-    # 临时保存模型文件
+    # 临时保存模型dc文件
     def save_temp_model_dc(self):
         torch.save(self.ins_model.state_dict(), self.sr_model_dc_temp_path)     # 保存到模型临时存储
-    # 临时保存模型脚本
+    # 临时保存模型py脚本
     def save_temp_model_py(self,sr_model_key_name):
         shutil.copy(self.sr_model_py_build_path.format(sr_model_key_name), self.sr_model_py_temp_path)
-    # 临时保存加载器脚本
+    # 临时保存加载器py脚本
     def save_temp_loader_py(self,sr_model_key_name):
         shutil.copy(self.sr_loader_py_build_path.format(sr_model_key_name), self.sr_loader_py_temp_path)
+    # 临时保存预测类py脚本
     def save_temp_predict_py(self,sr_model_key_name):
         shutil.copy(self.sr_predict_py_build_path.format(sr_model_key_name), self.sr_predict_py_temp_path)
 

@@ -15,7 +15,7 @@ class Train:
         lossf_sel = dc_train_params['lossf']
         opt_sel = dc_train_params['optim']
         momentum = dc_train_params['momentum']
-        is_show_details = dc_train_params['is_show_details']
+        is_show_detail = dc_train_params['is_show_detail']
 
 
         if lossf_sel == 'mse':
@@ -70,7 +70,7 @@ class Train:
                 optimizer.step()
                 train_loss = loss.item()
                 train_lossSum += train_loss
-                if is_show_details:
+                if is_show_detail:
                     print('{}-{}: {}'.format(epoch, step, train_loss))
             train_lossSum = train_lossSum / len(loader)
             print()
